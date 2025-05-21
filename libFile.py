@@ -2,12 +2,14 @@
     FileUtility Module
 """
 import os
-from libLog import Log
 import shutil   # fileCopy
 from tkinter import messagebox
 import tempfile
 from typing import Union
 
+#----------------------------------------------------------------
+
+#----------------------------------------------------------------
 class FileUtility:
     #------------------------------------------------
     # ファイル回り
