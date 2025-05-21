@@ -1,6 +1,6 @@
 """
 """
-from libColor import Color
+from LibraryPython.libColor import Color
 #from tkinter import messagebox
 class Log:
     isInfoDraw:bool = True

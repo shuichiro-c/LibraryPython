@@ -1,7 +1,11 @@
 """ 
     libWindowBase
 """
-from PyQt6.QtWidgets import QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit
+import sys
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit
+
+#import QtWidgets
+#from PyQt6.QtWidgets import QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit
 
 #----------------------------------------------------------------
 
