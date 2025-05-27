@@ -1,10 +1,8 @@
 """ 
     FileUtility Module
 """
-import os
-import shutil   # fileCopy
+import os, shutil, tempfile
 from tkinter import messagebox
-import tempfile
 from typing import Union
 
 #----------------------------------------------------------------
@@ -234,6 +232,6 @@ class FileUtility:
         return tempfile.mkdtemp()
 
 
-#-------------------------------------------------------
+#================================================================
 # End of file.
-#-------------------------------------------------------
+#================================================================

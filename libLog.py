@@ -2,7 +2,10 @@
     libLog.py
 """
 from LibraryPython.libColor import Color
-#from tkinter import messagebox
+
+#----------------------------------------------------------------
+
+#----------------------------------------------------------------
 class Log:
     isInfoDraw:bool = True
     isTypeDraw:bool = True
@@ -24,7 +27,6 @@ class Log:
         if Log.isTypeDraw:
             print(f"{Color.BLUE}type:{Color.COLOR_DEFAULT}{type(str)}")
 
-
-#-------------------------------------------------------
+#================================================================
 # End of file.
-#-------------------------------------------------------
+#================================================================
