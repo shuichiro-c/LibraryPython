@@ -1,16 +1,21 @@
 """ 
-    libWindowBase
+    libWindow.py
 """
+import sys, traceback
 from PySide6.QtWidgets import (QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit)
+from PySide6.QtCore import (Signal,QObject,QRunnable,QThreadPool,Slot)
 
 #----------------------------------------------------------------
 
 #----------------------------------------------------------------
 #----------------------------------------------------------------
 class WindowUtility(QWidget):
-    def __init__(self, app:QApplication):
+    def __init__(self, parent=None):
+        app =  QApplication()   # 事前にAppplicationが必要
         super().__init__()
+
         self.app = app
+        self.threadpool = QThreadPool()
 
         self.wx = 0
         self.wy = 0
@@ -73,7 +78,10 @@ class WindowUtility(QWidget):
         if self.logs is not None:
             self.logs.setText("")
 
-
+    #----------------------------------------------------------------
+    def getThreadPool(self):
+        return self.threadpool
+    
     #----------------------------------------------------------------
     # main
     def main(self) -> None:
@@ -81,3 +89,41 @@ class WindowUtility(QWidget):
         self.app.exec()
 
 #----------------------------------------------------------------
+#----------------------------------------------------------------
+class Worker(QRunnable):
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = self.WorkerSignals()
+
+        # Add the callback to our kwargs
+        self.kwargs['progress_callback'] = self.signals.progress
+
+    class WorkerSignals(QObject):
+        finished = Signal()
+        error = Signal(tuple)
+        progress = Signal(tuple)
+
+    def setFunction(self, progressFn, finishedFn):
+        self.signals.progress.connect(progressFn)
+        self.signals.finished.connect(finishedFn)
+
+    def start(self, pool:QThreadPool):
+        pool.start(self)
+        return
+
+    #@Slot()
+    def run(self):
+        try:
+            self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+
+        finally:
+            self.signals.finished.emit()  # Done

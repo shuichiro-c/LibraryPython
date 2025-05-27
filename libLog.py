@@ -1,4 +1,5 @@
 """
+    libLog.py
 """
 from LibraryPython.libColor import Color
 #from tkinter import messagebox
