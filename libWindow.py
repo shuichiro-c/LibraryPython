@@ -45,9 +45,9 @@ class WindowUtility(QWidget):
 
     #----------------------------------------------------------------
     # 入力Box処理
-    def createInputBox(self, title:str, x:int, y:int, w:int, h:int, delagate) -> QLineEdit:
+    def createInputBox(self, title:str, titlex:int, titlew:int, x:int, y:int, w:int, h:int, delagate) -> QLineEdit:
         label = QLabel(title, self)
-        label.setGeometry(25, y, 100, h)
+        label.setGeometry(titlex, y, titlew, h)
 
         self.inputBox = QLineEdit('',self)
         self.inputBox.setGeometry(x, y, w, h)
