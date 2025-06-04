@@ -1,16 +1,22 @@
 """ 
-    libWindowBase
+    libWindow.py
 """
-from PyQt6.QtWidgets import QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit
+import sys, traceback
+from PySide6.QtWidgets import (QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit)
+from PySide6.QtCore import (Signal,QObject,QRunnable,QThreadPool)
 
 #----------------------------------------------------------------
+
 
 #----------------------------------------------------------------
 #----------------------------------------------------------------
 class WindowUtility(QWidget):
-    def __init__(self, app:QApplication):
+    def __init__(self, parent=None):
+        app =  QApplication()   # 事前にAppplicationが必要
         super().__init__()
+
         self.app = app
+        self.threadpool = QThreadPool()
 
         self.wx = 0
         self.wy = 0
@@ -40,9 +46,9 @@ class WindowUtility(QWidget):
 
     #----------------------------------------------------------------
     # 入力Box処理
-    def createInputBox(self, title:str, x:int, y:int, w:int, h:int, delagate) -> QLineEdit:
+    def createInputBox(self, title:str, titlex:int, titlew:int, x:int, y:int, w:int, h:int, delagate) -> QLineEdit:
         label = QLabel(title, self)
-        label.setGeometry(10, y, 100, h)
+        label.setGeometry(titlex, y, titlew, h)
 
         self.inputBox = QLineEdit('',self)
         self.inputBox.setGeometry(x, y, w, h)
@@ -56,24 +62,44 @@ class WindowUtility(QWidget):
 
     #----------------------------------------------------------------
     # LogView処理
-    def createLogView(self, x:int, y:int, w:int, h:int) -> QTextEdit:
+    def createLogView(self, x:int, y:int, w:int, h:int, css:str=None) -> QTextEdit:
         self.logs = QTextEdit(self)
+        if css is not None:
+            self.logs.setStyleSheet(css)
         self.logs.setGeometry(x,y,w,h)
+        self.logs.toHtml()
         return self.logs
 
-    # LogViewhへの文字列追加
-    def addLogMessage(self, newText) -> None:
+    # LogViewへの文字列追加
+    def addLogColor(self, newText:str, color:str) -> None:
         if self.logs is not None and newText != "":
-            text = self.logs.toPlainText()
-            text = newText + "\n" + text
-            self.logs.setText(text)
+            html = "<span style='color: "+ color +";'>"+ newText +"</span>\n" + self.logs.toHtml()
+            self.logs.setHtml(html)
+
+    # LogViewへの文字列追加
+    def addLogMessage(self, newText:str) -> None:
+        self.addLogColor(newText, "white")
+
+    # LogViewへの文字列追加
+    def addLogError(self, newText:str) -> None:
+        self.addLogColor(newText, "red")
+            
+
+    # LogViewへの文字列追加
+    def addLogWarning(self, newText:str) -> None:
+        self.addLogColor(newText, "yellow")
+
+
 
     # LogClearボタン処理
     def clearLog(self) -> None:
         if self.logs is not None:
             self.logs.setText("")
 
-
+    #----------------------------------------------------------------
+    def getThreadPool(self):
+        return self.threadpool
+    
     #----------------------------------------------------------------
     # main
     def main(self) -> None:
@@ -81,3 +107,46 @@ class WindowUtility(QWidget):
         self.app.exec()
 
 #----------------------------------------------------------------
+# Job Worker
+#----------------------------------------------------------------
+class Worker(QRunnable):
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = self.WorkerSignals()
+
+        # Add the callback to our kwargs
+        self.kwargs['progress_callback'] = self.signals.process
+
+    class WorkerSignals(QObject):
+        finished = Signal()
+        error = Signal(tuple)
+        process = Signal(tuple)
+
+    def setFunction(self, progressFn, finishedFn):
+        self.signals.process.connect(progressFn)
+        self.signals.finished.connect(finishedFn)
+
+    def start(self, pool:QThreadPool):
+        pool.start(self)
+        return
+
+    #@Slot()
+    def run(self):
+        try:
+            self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+
+        finally:
+            self.signals.finished.emit()  # Done
+
+#================================================================
+# End of file.
+#================================================================

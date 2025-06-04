@@ -1,11 +1,11 @@
 """
     libHTTP.py
 """
-
 import urllib.parse
 import urllib.request
-import urllib.error
 from typing import Union
+
+#----------------------------------------------------------------
 
 #----------------------------------------------------------------
 class HTTPUtility():
@@ -63,4 +63,6 @@ class HTTPUtility():
         aString = targetPath.split('/')
         return aString[len(aString) - 1]
 
-#----------------------------------------------------------------
+#================================================================
+# End of file.
+#================================================================
