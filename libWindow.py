@@ -3,9 +3,10 @@
 """
 import sys, traceback
 from PySide6.QtWidgets import (QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit)
-from PySide6.QtCore import (Signal,QObject,QRunnable,QThreadPool,Slot)
+from PySide6.QtCore import (Signal,QObject,QRunnable,QThreadPool)
 
 #----------------------------------------------------------------
+
 
 #----------------------------------------------------------------
 #----------------------------------------------------------------
@@ -61,17 +62,34 @@ class WindowUtility(QWidget):
 
     #----------------------------------------------------------------
     # LogView処理
-    def createLogView(self, x:int, y:int, w:int, h:int) -> QTextEdit:
+    def createLogView(self, x:int, y:int, w:int, h:int, css:str=None) -> QTextEdit:
         self.logs = QTextEdit(self)
+        if css is not None:
+            self.logs.setStyleSheet(css)
         self.logs.setGeometry(x,y,w,h)
+        self.logs.toHtml()
         return self.logs
 
-    # LogViewhへの文字列追加
-    def addLogMessage(self, newText) -> None:
+    # LogViewへの文字列追加
+    def addLogColor(self, newText:str, color:str) -> None:
         if self.logs is not None and newText != "":
-            text = self.logs.toPlainText()
-            text = newText + "\n" + text
-            self.logs.setText(text)
+            html = "<span style='color: "+ color +";'>"+ newText +"</span>\n" + self.logs.toHtml()
+            self.logs.setHtml(html)
+
+    # LogViewへの文字列追加
+    def addLogMessage(self, newText:str) -> None:
+        self.addLogColor(newText, "white")
+
+    # LogViewへの文字列追加
+    def addLogError(self, newText:str) -> None:
+        self.addLogColor(newText, "red")
+            
+
+    # LogViewへの文字列追加
+    def addLogWarning(self, newText:str) -> None:
+        self.addLogColor(newText, "yellow")
+
+
 
     # LogClearボタン処理
     def clearLog(self) -> None:
@@ -89,6 +107,7 @@ class WindowUtility(QWidget):
         self.app.exec()
 
 #----------------------------------------------------------------
+# Job Worker
 #----------------------------------------------------------------
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
@@ -101,15 +120,15 @@ class Worker(QRunnable):
         self.signals = self.WorkerSignals()
 
         # Add the callback to our kwargs
-        self.kwargs['progress_callback'] = self.signals.progress
+        self.kwargs['progress_callback'] = self.signals.process
 
     class WorkerSignals(QObject):
         finished = Signal()
         error = Signal(tuple)
-        progress = Signal(tuple)
+        process = Signal(tuple)
 
     def setFunction(self, progressFn, finishedFn):
-        self.signals.progress.connect(progressFn)
+        self.signals.process.connect(progressFn)
         self.signals.finished.connect(finishedFn)
 
     def start(self, pool:QThreadPool):
