@@ -4,6 +4,7 @@
 import sys, traceback
 from PySide6.QtWidgets import (QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit)
 from PySide6.QtCore import (Signal,QObject,QRunnable,QThreadPool)
+from PySide6.QtGui import (QTextCursor)
 
 #----------------------------------------------------------------
 
@@ -73,8 +74,10 @@ class WindowUtility(QWidget):
     # LogViewへの文字列追加
     def addLogColor(self, newText:str, color:str) -> None:
         if self.logs is not None and newText != "":
-            html = "<span style='color: "+ color +";'>"+ newText +"</span>\n" + self.logs.toHtml()
+            html = self.logs.toHtml() + "<span style='color: "+ color +";'>"+ newText +"</span>\n"
             self.logs.setHtml(html)
+            self.logs.moveCursor(QTextCursor.End)
+            self.logs.ensureCursorVisible()  # スクロールを自動で調整
 
     # LogViewへの文字列追加
     def addLogMessage(self, newText:str) -> None:
