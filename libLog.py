@@ -1,7 +1,7 @@
 """
     libLog.py
 """
-from LibraryPython.libColor import Color
+from .libColor import Color
 
 #----------------------------------------------------------------
 
