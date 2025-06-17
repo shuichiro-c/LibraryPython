@@ -7,7 +7,7 @@ from PySide6.QtCore import (Signal,QObject,QRunnable,QThreadPool)
 from PySide6.QtGui import (QTextCursor)
 
 #----------------------------------------------------------------
-
+from .libDateTime import DateTime
 
 #----------------------------------------------------------------
 #----------------------------------------------------------------
@@ -25,6 +25,7 @@ class WindowUtility(QWidget):
         self.wh = 0
         self.logs = None
         self.inputBox = None
+        self.enableLogTime = True
 
     # UIの初期化
     def InitializeUI(self, title:str, x:int = 0, y:int = 0, w:int = 0, h:int = 0):
@@ -74,7 +75,10 @@ class WindowUtility(QWidget):
     # LogViewへの文字列追加
     def addLogColor(self, newText:str, color:str) -> None:
         if self.logs is not None and newText != "":
-            html = self.logs.toHtml() + "<span style='color: "+ color +";'>"+ newText +"</span>\n"
+            if self.enableLogTime is True:
+                html = self.logs.toHtml() + "<span style='color: white;'>"+DateTime.getNowTimeString() +"</span> <span style='color: "+ color +";'>"+ newText +"</span>\n"
+            else:
+                html = self.logs.toHtml() + "<span style='color: "+ color +";'>"+ newText +"</span>\n"
             self.logs.setHtml(html)
             self.logs.moveCursor(QTextCursor.End)
             self.logs.ensureCursorVisible()  # スクロールを自動で調整
@@ -142,6 +146,7 @@ class Worker(QRunnable):
     def run(self):
         try:
             self.fn(*self.args, **self.kwargs)
+            
         except:
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]
