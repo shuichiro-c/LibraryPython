@@ -26,6 +26,7 @@ class WindowUtility(QWidget):
         self.logs = None
         self.inputBox = None
         self.enableLogTime = True
+        self.text = ""
 
     # UIの初期化
     def InitializeUI(self, title:str, x:int = 0, y:int = 0, w:int = 0, h:int = 0):
@@ -76,10 +77,10 @@ class WindowUtility(QWidget):
     def addLogColor(self, newText:str, color:str) -> None:
         if self.logs is not None and newText != "":
             if self.enableLogTime is True:
-                html = self.logs.toHtml() + "<span style='color: white;'>"+DateTime.getNowTimeString() +"</span> <span style='color: "+ color +";'>"+ newText +"</span>\n"
+                self.text += "<span style='color: white;'>"+DateTime.getNowTimeString() +"</span> <span style='color: "+ color +";'>"+ newText +"</span><br>"
             else:
-                html = self.logs.toHtml() + "<span style='color: "+ color +";'>"+ newText +"</span>\n"
-            self.logs.setHtml(html)
+                self.text += "<span style='color: "+ color +";'>"+ newText +"</span><br>"
+            self.logs.setText(self.text)
             self.logs.moveCursor(QTextCursor.End)
             self.logs.ensureCursorVisible()  # スクロールを自動で調整
 
