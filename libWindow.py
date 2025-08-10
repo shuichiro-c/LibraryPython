@@ -2,12 +2,11 @@
     libWindow.py
 """
 import sys, traceback
-from PySide6.QtWidgets import (QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit)
+from PySide6.QtWidgets import (QApplication,QWidget,QPushButton,QLineEdit,QLabel,QTextEdit,QVBoxLayout)
 from PySide6.QtCore import (Signal,QObject,QRunnable,QThreadPool)
 from PySide6.QtGui import (QTextCursor)
 
 #----------------------------------------------------------------
-from .libDateTime import DateTime
 
 #----------------------------------------------------------------
 #----------------------------------------------------------------
@@ -54,6 +53,7 @@ class WindowUtility(QWidget):
         label.setGeometry(titlex, y, titlew, h)
 
         self.inputBox = QLineEdit('',self)
+        self.inputBox.setStyleSheet("background-color: #404040; color: white;")
         self.inputBox.setGeometry(x, y, w, h)
         self.inputBox.returnPressed.connect(delagate)
         return self.inputBox
@@ -75,9 +75,10 @@ class WindowUtility(QWidget):
 
     # LogViewへの文字列追加
     def addLogColor(self, newText:str, color:str) -> None:
+        from .libDateTime import DateTimeUtility
         if self.logs is not None and newText != "":
             if self.enableLogTime is True:
-                self.text += "<span style='color: white;'>"+DateTime.getNowTimeString() +"</span> <span style='color: "+ color +";'>"+ newText +"</span><br>"
+                self.text += "<span style='color: white;'>"+DateTimeUtility.getNowTimeString() +"</span> <span style='color: "+ color +";'>"+ newText +"</span><br>"
             else:
                 self.text += "<span style='color: "+ color +";'>"+ newText +"</span><br>"
             self.logs.setText(self.text)
@@ -103,6 +104,14 @@ class WindowUtility(QWidget):
     def clearLog(self) -> None:
         if self.logs is not None:
             self.logs.setText("")
+
+    #----------------------------------------------------------------
+    def createText(self, x:int, y:int, w:int, h:int, text:str) -> QLabel:
+
+        label = QLabel(text, self)
+        label.setGeometry(x, y, w, h)
+
+        return label
 
     #----------------------------------------------------------------
     def getThreadPool(self):
